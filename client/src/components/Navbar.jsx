@@ -1,5 +1,5 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon, UserCircleIcon, ShoppingCartIcon } from '@heroicons/react/24/outline'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../store/slices/userSlice'
@@ -15,6 +15,8 @@ export default function Navbar() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const loggedIn = useSelector((state) => state.user.loggedIn)
+
+  // const cartCount = useSelector((state) => state.cart.totalItems)
 
   const isActive = (href) => {
     return location.pathname === href
@@ -68,6 +70,18 @@ export default function Navbar() {
             </div>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            {/* Shopping Cart */}
+            <button
+              onClick={() => navigate('/cart')}
+              className="relative flex items-center rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
+            >
+              <span className="sr-only">View cart</span>
+              <ShoppingCartIcon className="h-8 w-8" />
+              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-xs h-4 w-4">
+                {/*{cartCount}*/}
+              </span>
+            </button>
+
             {/* Profile dropdown */}
             <Menu as="div" className="relative ml-3">
               <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">

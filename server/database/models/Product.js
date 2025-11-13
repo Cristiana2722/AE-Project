@@ -1,9 +1,8 @@
-// server/database/models/Product.js
 const { sequelize } = require('../server');
 const { DataTypes } = require('sequelize');
 
 const Product = sequelize.define('Product', {
-  id: {
+  product_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -40,11 +39,11 @@ const Product = sequelize.define('Product', {
     }
   },
   category: {
-    type: DataTypes.ENUM('Electronics', 'Clothing', 'Books', 'Home', 'Sports', 'Food', 'Other'),
+    type: DataTypes.ENUM('Makeup', 'Skincare', 'Hair', 'Fragrance', 'Bath & Body', 'Tools & Brushes', 'Other'),
     allowNull: false,
     validate: {
       isIn: {
-        args: [['Electronics', 'Clothing', 'Books', 'Home', 'Sports', 'Food', 'Other']],
+        args: [['Makeup', 'Skincare', 'Hair', 'Fragrance', 'Bath & Body', 'Tools & Brushes', 'Other']],
         msg: 'Category must be one of the predefined values'
       }
     }

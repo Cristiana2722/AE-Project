@@ -18,7 +18,7 @@ router.post('/', verifyToken, async (req, res) => {
 })
 
 // Modify product
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:product_id', verifyToken, async (req, res) => {
     try {
         const id = req.params.id;
 
@@ -75,7 +75,7 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:product_id', async (req, res) => {
     try {
         const id = req.params.id;
 

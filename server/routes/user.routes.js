@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
 })
 
 // Update route:
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:user_id', verifyToken, async (req, res) => {
     try {
         const id = req.params.id;
 
@@ -65,7 +65,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 })
 
 // Delete
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:user_id', verifyToken, async (req, res) => {
     try {
         const id = req.params.id;
 
@@ -103,7 +103,7 @@ router.get('/', verifyToken, async (req, res) => {
 })
 
 // GET by id
-router.get('/:id', verifyToken, async (req, res) => {
+router.get('/:user_id', verifyToken, async (req, res) => {
     try {
         const id = req.params.id;
 
