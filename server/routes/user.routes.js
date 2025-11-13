@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
 // Update route:
 router.put('/:user_id', verifyToken, async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.params.user_id;
 
         if (isNaN(id)) {
             // return res.status(404).json({success: false, message: 'User not found', data: {}});
@@ -67,7 +67,7 @@ router.put('/:user_id', verifyToken, async (req, res) => {
 // Delete
 router.delete('/:user_id', verifyToken, async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.params.user_id;
 
         if (isNaN(id)) {
             return res.status(400).json({success: false, message: 'User id is not valid', data: {}})
@@ -105,7 +105,7 @@ router.get('/', verifyToken, async (req, res) => {
 // GET by id
 router.get('/:user_id', verifyToken, async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.params.user_id;
 
         if (isNaN(id)) {
             return res.status(400).json({success: false, message: 'User id is not valid', data: {}})

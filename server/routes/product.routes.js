@@ -20,7 +20,7 @@ router.post('/', verifyToken, async (req, res) => {
 // Modify product
 router.put('/:product_id', verifyToken, async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.params.product_id;
 
         if (isNaN(id)) {
             return res.status(400).json({success: false, message: 'Product id is not valid', data: {}})
@@ -43,9 +43,9 @@ router.put('/:product_id', verifyToken, async (req, res) => {
 })
 
 // Delete product
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:product_id', verifyToken, async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.params.product_id;
 
         if (isNaN(id)) {
             return res.status(400).json({success: false, message: 'Product id is not valid', data: {}})
@@ -77,7 +77,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:product_id', async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.params.product_id;
 
         if (isNaN(id)) {
             return res.status(400).json({success: false, message: 'Product id is not valid', data: {}})
