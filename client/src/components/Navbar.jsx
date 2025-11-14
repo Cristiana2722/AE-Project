@@ -18,7 +18,9 @@ export default function Navbar() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const loggedIn = useSelector((state) => state.user.loggedIn)
-  const cart = useSelector((state) => state.cart)
+
+  const user = useSelector((state) => state.user.user);
+  const userId = user?.user_id;
 
   const [cartCount, setCartCount] = useState(0)
 
@@ -118,14 +120,16 @@ export default function Navbar() {
                 transition
                 className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
               >
+              {loggedIn && user && (
                 <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                  >
-                    Your profile
-                  </a>
+                    <a
+                      href={`/users/${user.id}`}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Your profile
+                    </a>
                 </MenuItem>
+              )}
                 <MenuItem>
                   <a
                     href="#"

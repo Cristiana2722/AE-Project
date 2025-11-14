@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import CreateProductPage from "./pages/CreateProductPage";
 import EditProductPage from "./pages/EditProductPage";
 import CartPage from "./pages/CartPage";
+import EditUserPage from "./pages/EditUserPage";
 import { ProtectedLayout, AuthLayout } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
 
@@ -30,7 +31,11 @@ export const router = createBrowserRouter([
           {
             path: "cart",
             element: <CartPage />,
-          }
+          },
+          { 
+            path: "users/:id",
+            element: <EditUserPage />
+          },
         ],
       },
       // Admin routes - require authentication AND admin role

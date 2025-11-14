@@ -49,7 +49,7 @@ router.put('/:user_id', verifyToken, async (req, res) => {
             return res.status(404).json({success: false, message: 'User not found', data: {}});
         }
 
-        if (user.dataValues.id !== req.userId) {
+        if (user.dataValues.user_id !== req.userId) {
             return res.status(400).json({success: false, message: 'Not the same user', data: {}});
         }
 
