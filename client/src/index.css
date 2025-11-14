@@ -5,4 +5,5 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  background-color: oklch(89.2% 0.058 10.001);
 }

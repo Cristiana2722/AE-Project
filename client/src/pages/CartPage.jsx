@@ -163,7 +163,7 @@ export default function CartPage() {
           </div>
           <button
             onClick={() => toast('Checkout not implemented')}
-            className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-500"
+            className="mt-4 w-full rounded-md px-4 py-2 text-white bg-rose-400 hover:bg-rose-600"
           >
             Checkout
           </button>
