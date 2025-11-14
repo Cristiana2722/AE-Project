@@ -1,16 +1,19 @@
-const { Product } = require('../database/models');
-const { User } = require('../database/models');
-const { Cart } = require('../database/models');
-
+const { Product, User, Cart } = require('../database/models');
 const express = require('express');
-const {verifyToken} = require('../utils/token.js');
+const { verifyToken } = require('../utils/token.js');
 
 const router = express.Router();
 
 // Add item to cart
 router.post('/', verifyToken, async (req, res) => {
   try {
-    const { user_id, product_id, quantity } = req.body;
+    const { product_id, quantity } = req.body;
+
+    const user_id = req.userId;
+
+    if (!product_id || !quantity) {
+      return res.status(400).json({ success: false, message: "Missing product_id or quantity", data: {} });
+    }
 
     const existingItem = await Cart.findOne({
       where: { user_id, product_id }
@@ -26,20 +29,21 @@ router.post('/', verifyToken, async (req, res) => {
       });
     }
 
-    const cartItem = await Cart.create({user_id, product_id, quantity});
-    res.status(201).json({success: true, message: 'Product added to cart', data: cartItem});
+    const cartItem = await Cart.create({ user_id, product_id, quantity });
+    res.status(201).json({ success: true, message: 'Product added to cart', data: cartItem });
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error adding product to cart', data: error.message});
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error adding product to cart', data: error.message });
   }
 })
 
 // Get Cart by user ID
-router.get('/:user_id', verifyToken, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
-    const id = req.params.user_id;
+    const user_id = req.userId;
 
     const cartItems = await Cart.findAll({
-      where: { user_id: id },
+      where: { user_id },
       include: [
         {
           model: Product,
@@ -50,44 +54,39 @@ router.get('/:user_id', verifyToken, async (req, res) => {
     });
 
     if (!cartItems.length) {
-      return res.status(404).json({success: false, message: 'No items in cart for this user', data: []});
+      return res.status(404).json({ success: false, message: 'No items in cart for this user', data: [] });
     }
 
-    const total = cartItems.reduce((sum, item) => {
-      return sum + item.quantity * (item.product?.price || 0);
-    }, 0);
+    const total = cartItems.reduce((sum, item) => sum + item.quantity * (item.product?.price || 0), 0);
 
-    res.status(200).json({success: true, message: 'Cart retrieved successfully', data: { items: cartItems, total }});
+    res.status(200).json({ success: true, message: 'Cart retrieved successfully', data: { items: cartItems, total } });
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error retrieving cart', data: error.message});
+    res.status(500).json({ success: false, message: 'Error retrieving cart', data: error.message });
   }
 })
 
 // Update Item from Cart (change qty)
-router.put('/:user_id/:cart_id', verifyToken, async (req, res) => {
+router.put('/:cart_id', verifyToken, async (req, res) => {
   try {
-    const { user_id, cart_id } = req.params;
+    const user_id = req.userId;
+    const { cart_id } = req.params;
     const { quantity } = req.body;
 
-    const cartItem = await Cart.findOne({
-      where: { cart_id, user_id }
-    });
+    const cartItem = await Cart.findOne({ where: { cart_id, user_id } });
 
     if (!cartItem) {
-      return res.status(404).json({success: false, message: 'Cart item not found for this user', data: {}});
+      return res.status(404).json({ success: false, message: 'Cart item not found for this user', data: {} });
     }
 
     if (quantity !== undefined) {
       if (quantity <= 0) {
         await cartItem.destroy();
-        return res.status(200).json({success: true, message: 'Cart item removed', data: {}});
+        return res.status(200).json({ success: true, message: 'Cart item removed', data: {} });
       } else {
         cartItem.quantity = quantity;
         await cartItem.save();
       }
     }
-
-    await cartItem.save();
 
     await cartItem.reload({
       include: [
@@ -99,54 +98,47 @@ router.put('/:user_id/:cart_id', verifyToken, async (req, res) => {
       ]
     });
 
-    res.status(200).json({success: true, message: 'Cart item updated successfully', data: cartItem});
+    res.status(200).json({ success: true, message: 'Cart item updated successfully', data: cartItem });
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error updating cart item', data: error.message});
+    res.status(500).json({ success: false, message: 'Error updating cart item', data: error.message });
   }
-})
+});
 
 // Delete a single cart item
-router.delete('/:user_id/:cart_id', verifyToken, async (req, res) => {
+router.delete('/:cart_id', verifyToken, async (req, res) => {
   try {
-    const { user_id, cart_id } = req.params;
+    const user_id = req.userId;
+    const { cart_id } = req.params;
 
-    const cartItem = await Cart.findOne({
-      where: { cart_id, user_id }
-    });
+    const cartItem = await Cart.findOne({ where: { cart_id, user_id } });
 
     if (!cartItem) {
-      return res.status(404).json({success: false, message: 'Cart item not found for this user', data: {}});
+      return res.status(404).json({ success: false, message: 'Cart item not found for this user', data: {} });
     }
 
     await cartItem.destroy();
 
-    res.status(200).json({success: true, message: 'Cart item deleted successfully', data: {}});
+    res.status(200).json({ success: true, message: 'Cart item deleted successfully', data: {} });
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error deleting cart item', data: error.message});
+    res.status(500).json({ success: false, message: 'Error deleting cart item', data: error.message });
   }
 })
 
 // Delete cart - when user clears cart
-router.delete('/:user_id', verifyToken, async (req, res) => {
+router.delete('/', verifyToken, async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const user_id = req.userId;
 
-    if (isNaN(user_id)) {
-      return res.status(400).json({success: false, message: 'User id is not valid', data: {}});
-    }
-
-    const deletedCount = await Cart.destroy({
-      where: { user_id }
-    });
+    const deletedCount = await Cart.destroy({ where: { user_id } });
 
     if (deletedCount === 0) {
-      return res.status(404).json({success: false, message: 'No cart items found for this user', data: {}});
+      return res.status(404).json({ success: false, message: 'No cart items found for this user', data: {} });
     }
 
-    res.status(200).json({success: true, message: 'Cart cleared successfully', data: {}});
+    res.status(200).json({ success: true, message: 'Cart cleared successfully', data: {} });
 
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error clearing cart', data: error.message});
+    res.status(500).json({ success: false, message: 'Error clearing cart', data: error.message });
   }
 })
 

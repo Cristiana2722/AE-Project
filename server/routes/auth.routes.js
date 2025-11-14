@@ -26,7 +26,7 @@ router.post('/login', async (req, res) => {
         return res.status(400).json({success: false, message: 'Not the same password', data: {}});
     }
 
-    const token = jwt.sign({id: existingUser.dataValues.id, role: existingUser.dataValues.role}, process.env.TOKEN_SECRET, {
+    const token = jwt.sign({id: existingUser.dataValues.user_id, role: existingUser.dataValues.role}, process.env.TOKEN_SECRET, {
         expiresIn: '1h'
     })
 

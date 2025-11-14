@@ -4,6 +4,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../store/slices/userSlice'
 import { classNames } from '../utils/tailwind.js'
+import { getCart } from '../api/cart.routes'
+import { useEffect, useState } from 'react'
+
 
 const navigation = [
   { name: 'Homepage', href: '/' },
@@ -15,8 +18,26 @@ export default function Navbar() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const loggedIn = useSelector((state) => state.user.loggedIn)
+  const cart = useSelector((state) => state.cart)
 
-  // const cartCount = useSelector((state) => state.cart.totalItems)
+  const [cartCount, setCartCount] = useState(0)
+
+  useEffect(() => {
+    const loadCart = async () => {
+      try {
+        const res = await getCart()
+        if (res?.success) {
+          const count = res.data.items.reduce((acc, item) => acc + item.quantity, 0)
+          setCartCount(count)
+        }
+      } catch (err) {
+        console.error('Error fetching cart:', err)
+      }
+    }
+
+    if (loggedIn) loadCart()
+  }, [loggedIn])
+
 
   const isActive = (href) => {
     return location.pathname === href
@@ -71,16 +92,19 @@ export default function Navbar() {
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {/* Shopping Cart */}
-            <button
-              onClick={() => navigate('/cart')}
-              className="relative flex items-center rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
-            >
-              <span className="sr-only">View cart</span>
-              <ShoppingCartIcon className="h-8 w-8" />
-              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-xs h-4 w-4">
-                {/*{cartCount}*/}
-              </span>
-            </button>
+            {loggedIn && (
+              <button
+                onClick={() => navigate('/cart')}
+                className="relative flex items-center rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
+              >
+                <span className="sr-only">View cart</span>
+                <ShoppingCartIcon className="h-8 w-8" />
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-xs h-4 w-4">
+                  {cartCount}
+                </span>
+              </button>
+            )}
+
 
             {/* Profile dropdown */}
             <Menu as="div" className="relative ml-3">

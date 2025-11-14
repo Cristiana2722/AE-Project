@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { fetchProducts, deleteProduct } from '../api/product.routes';
+import { addToCart } from '../api/cart.routes';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function ProductsPage() {
@@ -49,7 +50,7 @@ export default function ProductsPage() {
       const response = await deleteProduct(productId);
 
       if (response?.success) {
-        setProducts(products.filter((p) => p.id !== productId));
+        setProducts(products.filter((p) => p.product_id !== productId));
         toast.success('Product deleted successfully');
       } else {
         toast.error(response?.message || 'Failed to delete product');
@@ -63,6 +64,27 @@ export default function ProductsPage() {
 
   const handleCreateClick = () => {
     navigate('/products/create');
+  };
+
+  const handleAddToCart = async (productId) => {
+    if (!user) {
+      toast.error('You must be logged in to add items to your cart');
+      return;
+    }
+
+    try {
+      const response = await addToCart({ product_id: productId, quantity: 1 });
+
+      if (response?.success) {
+        toast.success('Added to cart!');
+        window.location.reload();
+      } else {
+        toast.error(response?.message || 'Could not add to cart');
+      }
+    } catch (err) {
+      console.error('Error adding to cart:', err);
+      toast.error('Error adding to cart');
+    }
   };
 
   if (loading) {
@@ -120,7 +142,7 @@ export default function ProductsPage() {
 
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
           {products.map((product) => (
-            <div key={product.id} className="group relative">
+            <div key={product.product_id} className="group relative">
               <div className="relative">
                 <img
                   alt={product.name}
@@ -132,7 +154,7 @@ export default function ProductsPage() {
                     <button
                       type="button"
                       className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md shadow-lg transition-colors duration-200"
-                      onClick={() => handleEditClick(product.id)}
+                      onClick={() => handleEditClick(product.product_id)}
                       title="Edit"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,8 +164,8 @@ export default function ProductsPage() {
                     <button
                       type="button"
                       className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-md shadow-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => handleDeleteClick(product.id)}
-                      disabled={deletingId === product.id}
+                      onClick={() => handleDeleteClick(product.product_id)}
+                      disabled={deletingId === product.product_id}
                       title="Delete"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,6 +187,12 @@ export default function ProductsPage() {
                 </div>
                 <p className="text-sm font-medium text-gray-900">${product.price}</p>
               </div>
+                <button
+                  onClick={() => handleAddToCart(product.product_id)}
+                  className="relative z-20 w-full mt-2 inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1 text-sm font-semibold text-white hover:bg-indigo-500"
+                >
+                  Add to Cart
+                </button>
             </div>
           ))}
         </div>
